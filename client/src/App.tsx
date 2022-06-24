@@ -7,7 +7,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { DragEvent, useRef, useState } from "react";
 import { RiAddCircleLine } from "react-icons/ri";
 import { BiDotsHorizontalRounded } from "react-icons/bi";
 import AppWrapper from "./layout";
@@ -51,6 +51,7 @@ const initialSections: TodoSection[] = [
 ];
 function App() {
   const [sections, setSection] = useState<TodoSection[]>(initialSections);
+  const dragItem = useRef<any>(null);
 
   const addNewSection = () => {
     const newSection: TodoSection = {
@@ -77,6 +78,12 @@ function App() {
     setSection(newSections);
   };
 
+  const dragStart = (e: DragEvent<HTMLDivElement>, position: number) => {
+    dragItem.current = position;
+    console.log(e.currentTarget);
+    console.log(e.target);
+  };
+
   return (
     <AppWrapper>
       <Flex
@@ -84,6 +91,7 @@ function App() {
         overflowX="scroll"
         overflowY="hidden"
         whiteSpace="nowrap"
+        height="100vh"
       >
         {sections?.map?.((section) => (
           <Box
@@ -95,7 +103,8 @@ function App() {
             }}
             display="inline-block"
             key={section.id}
-            width="300px"
+            minW="300px"
+            maxW="300px"
           >
             <Flex
               direction="row"
@@ -113,6 +122,7 @@ function App() {
                     variant="ghost"
                     p={0}
                     aria-label="add-new-section"
+                    onClick={addNewSection}
                   >
                     <RiAddCircleLine />
                   </IconButton>
@@ -140,13 +150,19 @@ function App() {
                   }}
                   key={todo.id}
                   padding={4}
+                  draggable
+                  onDrag={(e) => dragStart(e, todo.id)}
                 >
                   <Text noOfLines={1}>{todo.title}</Text>
                 </Box>
               ))}
             </Box>
             <Box mt="30px">
-              <Button variant="dashed" w="100%">
+              <Button
+                variant="dashed"
+                w="100%"
+                onClick={() => addNewTodo(section.id)}
+              >
                 <Stack spacing={2} direction="row" alignItems="center">
                   <RiAddCircleLine />
                   <Text>Add todo</Text>
