@@ -2,7 +2,6 @@
   "name": "todo-graphql",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "backend:dev": "cd backend && npm run start:dev",
     "client:dev": "cd client && npm run start",
@@ -10,7 +9,8 @@
     "client:prod": "cd client && npm run start",
     "start:dev": "concurrently \"npm run backend:dev\" \"npm run client:dev\"",
     "start": "concurrently \"npm run backend:prod\" \"npm run client:prod\"",
-    "test": "npm run test --workspaces"
+    "test": "npm run test --workspaces",
+    "release": "npx semantic-release"
   },
   "workspaces": [
     "backend",
@@ -20,6 +20,29 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^7.2.2"
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/release-notes-generator": "^10.0.3",
+    "concurrently": "^7.2.2",
+    "semantic-release": "^19.0.3"
+  },
+  "release": {
+    "branches": [
+      "develop"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false
+        }
+      ],
+      "@semantic-release/changelog",
+      "@semantic-release/git"
+    ]
   }
 }
