@@ -1,0 +1,25 @@
+{
+  "name": "todo-graphql",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "backend:dev": "cd backend && npm run start:dev",
+    "client:dev": "cd client && npm run start",
+    "backend:prod": "cd backend && npm run start:prod",
+    "client:prod": "cd client && npm run start",
+    "start:dev": "concurrently \"npm run backend:dev\" \"npm run client:dev\"",
+    "start": "concurrently \"npm run backend:prod\" \"npm run client:prod\"",
+    "test": "npm run test --workspaces"
+  },
+  "workspaces": [
+    "backend",
+    "client"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^7.2.2"
+  }
+}
