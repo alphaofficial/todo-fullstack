@@ -1,0 +1,14 @@
+{
+  "types": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "docs", "section": "Docs" },
+    { "type": "style", "section": "Style" },
+    { "type": "refactor", "section": "Refactor" },
+    { "type": "perf", "hidden": true },
+    { "type": "test", "hidden": true },
+    { "type": "chore", "hidden": true }
+  ],
+  "commitUrlFormat": "https://github.com/mokkapps/changelog-generator-demo/commits/{{hash}}",
+  "compareUrlFormat": "https://github.com/mokkapps/changelog-generator-demo/compare/{{previousTag}}...{{currentTag}}"
+}
