@@ -91,7 +91,6 @@ function App() {
               "&:not(:first-child)": {
                 ml: "30px",
               },
-              padding: "10px",
               borderRadius: "8px",
             }}
             display="inline-block"
