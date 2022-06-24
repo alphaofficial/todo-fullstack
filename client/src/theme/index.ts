@@ -1,4 +1,7 @@
 import { extendTheme } from "@chakra-ui/react";
+import defaultTheme from "@chakra-ui/theme";
+import { StyleFunctionProps } from "@chakra-ui/theme-tools";
+import "@fontsource/source-sans-pro";
 
 const primary = {
   50: "#e1f5fc",
@@ -27,16 +30,42 @@ const secondary = {
 };
 
 const fonts = {
-  body: "Source Sans Pro, sans-serif",
-  heading: "Source Sans Pro, sans-serif",
+  body: "Source Sans Pro",
+  heading: "Source Sans Pro",
+};
+
+const components = {
+  Button: {
+    variants: {
+      dashed: (props: StyleFunctionProps) => ({
+        ...defaultTheme.components.Button.variants.solid(props),
+        borderRadius: "8px",
+        borderStyle: "dashed",
+        borderWidth: "1px",
+        borderColor: "gray.500",
+      }),
+    },
+  },
 };
 
 const theme = extendTheme({
   colors: {
+    gray: {
+      100: "#F5f5f5",
+      200: "#EEEEEE",
+      300: "#E0E0E0",
+      400: "#BDBDBD",
+      500: "#9E9E9E",
+      600: "#757575",
+      700: "#616161",
+      800: "#424242",
+      900: "#212121",
+    },
     primary,
     secondary,
   },
   fonts,
+  components,
 });
 
 export { theme, primary, secondary };
