@@ -10,7 +10,8 @@
     "start:dev": "concurrently \"npm run backend:dev\" \"npm run client:dev\"",
     "start": "concurrently \"npm run backend:prod\" \"npm run client:prod\"",
     "test": "npm run test --workspaces",
-    "release": "npx semantic-release"
+    "release": "npx semantic-release",
+    "prepare": "husky install"
   },
   "workspaces": [
     "backend",
@@ -43,6 +44,18 @@
       ],
       "@semantic-release/changelog",
       "@semantic-release/git"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^7.0.0"
+  },
+  "lint-staged": {
+    "backend/src/**/*.ts": [
+      "prettier --write",
+      "eslint --cache --fix"
+    ],
+    "client/src/**/*.{ts,js}": [
+      "prettier --write"
     ]
   }
 }
