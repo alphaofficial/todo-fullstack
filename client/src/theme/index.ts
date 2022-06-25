@@ -1,7 +1,6 @@
 import { extendTheme } from "@chakra-ui/react";
 import defaultTheme from "@chakra-ui/theme";
 import { StyleFunctionProps } from "@chakra-ui/theme-tools";
-import "@fontsource/source-sans-pro";
 
 const primary = {
   50: "#e1f5fc",

@@ -52,6 +52,7 @@ const initialSections: TodoSection[] = [
 function App() {
   const [sections, setSection] = useState<TodoSection[]>(initialSections);
   const dragItem = useRef<any>(null);
+  const dragOverItem = useRef<any>(null);
 
   const addNewSection = () => {
     const newSection: TodoSection = {
@@ -78,12 +79,46 @@ function App() {
     setSection(newSections);
   };
 
-  const dragStart = (e: DragEvent<HTMLDivElement>, position: number) => {
-    dragItem.current = position;
-    console.log(e.currentTarget);
-    console.log(e.target);
+  const onDragStart = (
+    e: DragEvent<HTMLDivElement>,
+    id: number,
+    sectionId: number
+  ) => {
+    console.log("dragstart:", id);
+    e.dataTransfer.setData("id", id.toString());
+    e.dataTransfer.setData("currentSectionId", sectionId.toString());
   };
 
+  const onDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const onDrop = (e: DragEvent<HTMLDivElement>, sectionId: number) => {
+    console.log("dropArea", sectionId);
+    let id = e.dataTransfer.getData("id");
+    let currentSectionId = e.dataTransfer.getData("currentSectionId");
+
+    //find todo
+    const todo = sections
+      .find((s) => s.id === +currentSectionId)!
+      .todos.find((t) => t.id === +id);
+
+    if (!!todo) {
+      todo.sectionId = sectionId;
+      const newSections = sections.map((s) => {
+        if (s.id === +currentSectionId) {
+          const newTodos = s.todos.filter((t) => t.id !== todo.id);
+          return { ...s, todos: newTodos };
+        } else if (s.id === sectionId) {
+          const item = { ...todo };
+          item.sectionId = sectionId;
+          return { ...s, todos: [...s.todos, todo] };
+        }
+        return s;
+      });
+      setSection(newSections);
+    }
+  };
   return (
     <AppWrapper>
       <Flex
@@ -105,6 +140,8 @@ function App() {
             key={section.id}
             minW="300px"
             maxW="300px"
+            onDrop={(e) => onDrop(e, section.id)}
+            onDragOver={onDragOver}
           >
             <Flex
               direction="row"
@@ -151,7 +188,7 @@ function App() {
                   key={todo.id}
                   padding={4}
                   draggable
-                  onDrag={(e) => dragStart(e, todo.id)}
+                  onDragStart={(e) => onDragStart(e, todo.id, section.id)}
                 >
                   <Text noOfLines={1}>{todo.title}</Text>
                 </Box>
