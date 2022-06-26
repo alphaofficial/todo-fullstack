@@ -18,10 +18,16 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "database:create": "npx mikro-orm database:create",
+    "migrations:create": "npx mikro-orm migration:create",
+    "migrations:up": "npx mikro-orm migration:up",
+    "migrations:down": "npx mikro-orm migration:down"
   },
   "dependencies": {
+    "@mikro-orm/cli": "^5.2.1",
     "@mikro-orm/core": "^5.2.1",
+    "@mikro-orm/migrations": "^5.2.1",
     "@mikro-orm/nestjs": "^5.0.2",
     "@mikro-orm/postgresql": "^5.2.1",
     "@mikro-orm/reflection": "^5.2.1",
@@ -32,10 +38,12 @@
     "@nestjs/graphql": "^10.0.16",
     "@nestjs/platform-express": "^8.0.0",
     "apollo-server-express": "^3.9.0",
+    "class-validator": "^0.13.2",
     "graphql": "^16.5.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
@@ -45,6 +53,7 @@
     "@types/jest": "27.5.0",
     "@types/node": "^16.0.0",
     "@types/supertest": "^2.0.11",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",
@@ -76,5 +85,12 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "configPaths": [
+      "./src/mikro-orm.config.ts",
+      "./dist/mikro-orm.config.js"
+    ]
   }
 }
