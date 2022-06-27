@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { ItemsService } from './items.service';
 import { CreateItemInput } from './dto/create-item.input';
 import { UpdateItemInput } from './dto/update-item.input';
@@ -29,7 +29,7 @@ export class ItemsResolver {
   }
 
   @Query(() => Item, { name: 'item' })
-  async findOne(@Args('id', { type: () => Int }) id: string) {
+  async findOne(@Args('id', { type: () => String }) id: string) {
     const { data, error } = await this.itemsService.findOne(id);
     if (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -50,7 +50,7 @@ export class ItemsResolver {
   }
 
   @Mutation(() => Item)
-  async removeItem(@Args('id', { type: () => Int }) id: string) {
+  async removeItem(@Args('id', { type: () => String }) id: string) {
     const { data, error } = await this.itemsService.remove(id);
     if (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

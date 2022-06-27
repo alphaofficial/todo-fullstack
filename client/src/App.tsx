@@ -6,11 +6,19 @@ import {
   IconButton,
   Stack,
   Text,
+  useToast,
 } from "@chakra-ui/react";
-import { DragEvent, useRef, useState } from "react";
+import { DragEvent, useState } from "react";
 import { RiAddCircleLine } from "react-icons/ri";
 import { BiDotsHorizontalRounded } from "react-icons/bi";
 import AppWrapper from "./layout";
+import {
+  StatusQuery,
+  useCreateStatusMutation,
+  useItemsQuery,
+  useStatusesQuery,
+} from "./generated/graphql";
+import { ERROR_TOAST, SUCCESS_TOAST } from "./constants";
 
 interface Todo {
   id: number;
@@ -50,9 +58,30 @@ const initialSections: TodoSection[] = [
   },
 ];
 function App() {
+  const toast = useToast();
+  const { data: items, loading: itemsLoading } = useItemsQuery({
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const { data: statuses, loading: statusesLoading } = useStatusesQuery({
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const [currentStatuses, setCurrentStatuses] = useState(statuses?.statuses);
+
+  console.log(currentStatuses);
+  const [createStatus, { loading }] = useCreateStatusMutation({
+    onCompleted: () => {
+      toast({ description: "Status created.", ...SUCCESS_TOAST });
+    },
+    onError: () => {
+      toast({
+        description: "There was an error creating status.",
+        ...ERROR_TOAST,
+      });
+    },
+  });
   const [sections, setSection] = useState<TodoSection[]>(initialSections);
-  const dragItem = useRef<any>(null);
-  const dragOverItem = useRef<any>(null);
 
   const addNewSection = () => {
     const newSection: TodoSection = {

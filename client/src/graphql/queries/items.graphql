@@ -1,0 +1,19 @@
+query Items {
+  items {
+    id
+    title
+    status {
+      id
+    }
+  }
+}
+
+query Item($id: String!) {
+  item(id: $id) {
+    id
+    title
+    status {
+      id
+    }
+  }
+}

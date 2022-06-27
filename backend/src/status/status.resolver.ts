@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { StatusService } from './status.service';
 import { CreateStatusInput } from './dto/create-status.input';
 import { UpdateStatusInput } from './dto/update-status.input';
@@ -30,7 +30,7 @@ export class StatusResolver {
   }
 
   @Query(() => Status, { name: 'status' })
-  async findOne(@Args('id', { type: () => Int }) id: string) {
+  async findOne(@Args('id', { type: () => String }) id: string) {
     const { data, error } = await this.statusService.findOne(id);
     if (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -53,7 +53,7 @@ export class StatusResolver {
   }
 
   @Mutation(() => Status)
-  async removeStatus(@Args('id', { type: () => Int }) id: string) {
+  async removeStatus(@Args('id', { type: () => String }) id: string) {
     const { data, error } = await this.statusService.remove(id);
     if (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

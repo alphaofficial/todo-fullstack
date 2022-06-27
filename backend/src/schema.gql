@@ -31,16 +31,16 @@ type Item {
 type Mutation {
   createItem(createItemInput: CreateItemInput!): Item!
   createStatus(createStatusInput: CreateStatusInput!): Status!
-  removeItem(id: Int!): Item!
-  removeStatus(id: Int!): Status!
+  removeItem(id: String!): Item!
+  removeStatus(id: String!): Status!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   updateStatus(updateStatusInput: UpdateStatusInput!): Status!
 }
 
 type Query {
-  item(id: Int!): Item!
+  item(id: String!): Item!
   items: [Item!]!
-  status(id: Int!): Status!
+  status(id: String!): Status!
   statuses: [Status!]!
 }
 

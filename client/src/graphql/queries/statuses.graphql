@@ -1,0 +1,27 @@
+query Statuses {
+  statuses {
+    id
+    title
+    items {
+      id
+      title
+      status {
+        id
+      }
+    }
+  }
+}
+
+query Status($id: String!) {
+  status(id: $id) {
+    id
+    title
+    items {
+      id
+      title
+      status {
+        id
+      }
+    }
+  }
+}

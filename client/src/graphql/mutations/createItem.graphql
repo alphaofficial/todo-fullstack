@@ -1,0 +1,9 @@
+mutation createItem($createItemInput: CreateItemInput!) {
+  createItem(createItemInput: $createItemInput) {
+    id
+    title
+    status {
+      id
+    }
+  }
+}
