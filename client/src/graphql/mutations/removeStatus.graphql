@@ -1,0 +1,13 @@
+mutation removeStatus($id: String!) {
+  removeStatus(id: $id) {
+    id
+    title
+    items {
+      id
+      title
+      status {
+        id
+      }
+    }
+  }
+}

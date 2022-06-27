@@ -1,0 +1,9 @@
+mutation removeItem($id: String!) {
+  removeItem(id: $id) {
+    id
+    title
+    status {
+      id
+    }
+  }
+}
