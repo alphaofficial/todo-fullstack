@@ -12,21 +12,32 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { DragEvent, useMemo } from "react";
+import { DragEvent, useMemo, useState } from "react";
 import { RiAddCircleLine } from "react-icons/ri";
 import { BiDotsHorizontalRounded } from "react-icons/bi";
 import AppWrapper from "./layout";
 import {
   useCreateItemMutation,
   useCreateStatusMutation,
+  useRemoveItemMutation,
   useRemoveStatusMutation,
   useStatusesQuery,
 } from "./generated/graphql";
 import { ERROR_TOAST, SUCCESS_TOAST } from "./constants";
 import { GoTrashcan } from "react-icons/go";
 
+interface EditingMeta {
+  id: string;
+  type: "item" | "status";
+}
+
 function App() {
   const toast = useToast();
+  const [editing, setEditing] = useState(false);
+  const [editMeta, setEditMeta] = useState<EditingMeta>({
+    id: "",
+    type: "item",
+  });
   const {
     data: statuses,
     loading: statusesLoading,
@@ -76,6 +87,18 @@ function App() {
     },
   });
 
+  const [removeItem] = useRemoveItemMutation({
+    onCompleted: () => {
+      toast({ description: "Status deleted.", ...SUCCESS_TOAST });
+    },
+    onError: () => {
+      toast({
+        description: "There was an error deleting status.",
+        ...ERROR_TOAST,
+      });
+    },
+  });
+
   const addNewSection = async () => {
     const newStatus = {
       title: "New Section",
@@ -99,6 +122,11 @@ function App() {
     await refetchStatus();
   };
 
+  const onDeleteItem = async (itemId: string) => {
+    await removeItem({ variables: { id: itemId } });
+    await refetchStatus();
+  };
+
   const onDragStart = (
     e: DragEvent<HTMLDivElement>,
     id: string,
@@ -106,7 +134,7 @@ function App() {
   ) => {
     console.log("dragstart:", id);
     e.dataTransfer.setData("id", id);
-    e.dataTransfer.setData("currentSectionId", statusId);
+    e.dataTransfer.setData("currentStatusId", statusId);
   };
 
   const onDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -123,12 +151,13 @@ function App() {
       ?.find((s) => s.id === currentStatusId)!
       .items?.find((t) => t.id === id);
 
-    if (!!item) {
-      item.status.id = statusId;
+    if (item) {
+      const _item = { ...item };
+      _item.status.id = statusId;
 
       const newStatus = currentStatuses?.map((s) => {
         if (s.id === currentStatusId) {
-          const newItems = s.items?.filter((t) => t.id !== item.id);
+          const newItems = s.items?.filter((t) => t.id !== _item.id);
           return { ...s, todos: newItems };
         } else if (s.id === statusId) {
           const _item = { ...item };
@@ -159,6 +188,7 @@ function App() {
         >
           {currentStatuses?.map?.((status) => (
             <Box
+              key={status.id}
               sx={{
                 "&:not(:first-child)": {
                   ml: "30px",
@@ -166,7 +196,6 @@ function App() {
                 borderRadius: "8px",
               }}
               display="inline-block"
-              key={status.id}
               minW="300px"
               maxW="300px"
               onDrop={(e) => onDrop(e, status.id)}
@@ -216,36 +245,35 @@ function App() {
                   <Flex
                     direction="row"
                     justifyContent="space-between"
+                    alignItems="center"
+                    key={item.id}
+                    draggable
+                    onDragStart={(e) => onDragStart(e, item?.id, status?.id)}
                     sx={{
                       border: "1px solid",
                       borderColor: "gray.400",
+                      borderRadius: "8px",
                       "&:not(:first-child)": {
                         mt: "10px",
                       },
-                      borderRadius: "8px",
                       "&:hover": {
                         backgroundColor: "gray.100",
                       },
                     }}
-                    key={item.id}
-                    padding={4}
-                    draggable
-                    onDragStart={(e) => onDragStart(e, item?.id, status?.id)}
+                    paddingY={2}
+                    paddingX={4}
                   >
                     <Box>
                       <Text noOfLines={1}>{item?.title}</Text>
                     </Box>
                     <Box>
-                      <Menu>
-                        <MenuButton p={0} aria-label="more-options">
-                          <BiDotsHorizontalRounded />
-                        </MenuButton>
-                        <MenuList>
-                          <MenuItem icon={<GoTrashcan />} command="⌘T">
-                            Delete
-                          </MenuItem>
-                        </MenuList>
-                      </Menu>
+                      <IconButton
+                        aria-label="delete-item"
+                        variant="ghost"
+                        onClick={() => onDeleteItem(item.id)}
+                      >
+                        <GoTrashcan />
+                      </IconButton>
                     </Box>
                   </Flex>
                 ))}

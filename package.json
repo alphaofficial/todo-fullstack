@@ -7,9 +7,6 @@
     "client:dev": "cd client && set -o allexport && source .env && set +o allexport && npm run start",
     "backend:prod": "cd backend && npm run start:prod",
     "client:prod": "cd client && set -o allexport && source .env && set +o allexport && npm run start",
-    "start:dev": "concurrently \"npm run backend:dev\" \"npm run client:dev\"",
-    "start": "concurrently \"npm run backend:prod\" \"npm run client:prod\"",
-    "test": "npm run test --workspaces",
     "release": "npx semantic-release",
     "prepare": "husky install"
   },
