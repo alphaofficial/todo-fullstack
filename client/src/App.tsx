@@ -30,7 +30,6 @@ import {
 import { ERROR_TOAST, SUCCESS_TOAST } from "./constants";
 import { GoTrashcan } from "react-icons/go";
 import { BsCheck } from "react-icons/bs";
-import useOnClickOutside from "./hooks/useOutsideClick";
 import { useDebouncedCallback } from "use-debounce";
 
 interface EditingMeta {
@@ -223,8 +222,6 @@ function App() {
       ?.find((s) => s.id === currentStatusId)!
       .items?.find((t) => t.id === id);
 
-    console.log({ item });
-
     if (item) {
       onUpdateItem({
         itemId: id,
@@ -298,7 +295,7 @@ function App() {
                         onClick={() =>
                           onUpdateStatus({
                             statusId: status.id,
-                            title: statusContainerRef.current?.value,
+                            title: statusInputRef.current?.value,
                           })
                         }
                       >
