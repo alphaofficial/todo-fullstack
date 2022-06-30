@@ -17,10 +17,7 @@ export class User {
   @Property({ defaultRaw: `CURRENT_TIMESTAMP` })
   createdAt: Date;
 
-  @Property({
-    onUpdate: () => `CURRENT_TIMESTAMP`,
-    nullable: true,
-  })
+  @Property({ nullable: true })
   updatedAt?: Date;
 
   @Property({ nullable: true })

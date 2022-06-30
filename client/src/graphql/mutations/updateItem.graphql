@@ -1,0 +1,9 @@
+mutation updateItem($updateItemInput: UpdateItemInput!) {
+  updateItem(updateItemInput: $updateItemInput) {
+    id
+    title
+    status {
+      id
+    }
+  }
+}

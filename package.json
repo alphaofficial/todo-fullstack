@@ -5,6 +5,7 @@
   "scripts": {
     "backend:dev": "cd backend && npm run start:dev",
     "client:dev": "cd client && set -o allexport && source .env && set +o allexport && npm run start",
+    "client:generate": "cd client && set -o allexport && source .env && set +o allexport && npm run generate",
     "backend:prod": "cd backend && npm run start:prod",
     "client:prod": "cd client && set -o allexport && source .env && set +o allexport && npm run start",
     "release": "npx semantic-release",

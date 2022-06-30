@@ -22,6 +22,8 @@ import {
   useRemoveItemMutation,
   useRemoveStatusMutation,
   useStatusesQuery,
+  useUpdateItemMutation,
+  useUpdateStatusMutation,
 } from "./generated/graphql";
 import { ERROR_TOAST, SUCCESS_TOAST } from "./constants";
 import { GoTrashcan } from "react-icons/go";
@@ -29,6 +31,18 @@ import { GoTrashcan } from "react-icons/go";
 interface EditingMeta {
   id: string;
   type: "item" | "status";
+}
+
+interface UpdateItemArgs {
+  itemId: string;
+  title?: string;
+  statusId?: string;
+}
+
+interface UpdateStatusArgs {
+  statusId: string;
+  title?: string;
+  item?: any;
 }
 
 function App() {
@@ -50,7 +64,6 @@ function App() {
     return statuses?.statuses;
   }, [statuses]);
 
-  console.log(currentStatuses);
   const [createStatus] = useCreateStatusMutation({
     onCompleted: () => {
       toast({ description: "Status created.", ...SUCCESS_TOAST });
@@ -99,13 +112,37 @@ function App() {
     },
   });
 
+  const [updateStatus] = useUpdateStatusMutation({
+    onCompleted: () => {
+      toast({ description: "Status updated.", ...SUCCESS_TOAST });
+    },
+    onError: () => {
+      toast({
+        description: "There was an error updating status.",
+        ...ERROR_TOAST,
+      });
+    },
+  });
+
+  const [updateItem] = useUpdateItemMutation({
+    onCompleted: () => {
+      toast({ description: "Item updated.", ...SUCCESS_TOAST });
+    },
+    onError: () => {
+      toast({
+        description: "There was an error updating item.",
+        ...ERROR_TOAST,
+      });
+    },
+  });
+
   const addNewSection = async () => {
     const newStatus = {
       title: "New Section",
-      todos: [],
     };
     console.log({ newStatus });
     await createStatus({ variables: { createStatusInput: newStatus } });
+    await refetchStatus();
   };
 
   const addNewTodo = async (statusId: string) => {
@@ -126,6 +163,38 @@ function App() {
     await removeItem({ variables: { id: itemId } });
     await refetchStatus();
   };
+
+  const onUpdateItem = async ({ itemId, title, statusId }: UpdateItemArgs) => {
+    await updateItem({
+      variables: {
+        updateItemInput: {
+          id: itemId,
+          ...(title && { title }),
+          ...(statusId && { status: statusId }),
+        },
+      },
+    });
+    await refetchStatus();
+  };
+
+  // const onUpdateStatus = async ({
+  //   statusId,
+  //   title,
+  //   item,
+  // }: UpdateStatusArgs) => {
+  //   const curentItems = currentStatuses?.find(
+  //     (status) => status.id === statusId
+  //   )?.items;
+  //   await updateStatus({
+  //     variables: {
+  //       updateStatusInput: {
+  //         id: statusId,
+  //         ...(title && { title }),
+  //         ...(curentItems && item && { todo: [...curentItems, item] }),
+  //       },
+  //     },
+  //   });
+  // };
 
   const onDragStart = (
     e: DragEvent<HTMLDivElement>,
@@ -151,24 +220,38 @@ function App() {
       ?.find((s) => s.id === currentStatusId)!
       .items?.find((t) => t.id === id);
 
-    if (item) {
-      const _item = { ...item };
-      _item.status.id = statusId;
+    console.log({ item });
 
-      const newStatus = currentStatuses?.map((s) => {
-        if (s.id === currentStatusId) {
-          const newItems = s.items?.filter((t) => t.id !== _item.id);
-          return { ...s, todos: newItems };
-        } else if (s.id === statusId) {
-          const _item = { ...item };
-          _item.status.id = statusId;
-          //@ts-ignore
-          return { ...s, todos: [...s.items, item] };
-        }
-        return s;
+    if (item) {
+      //update item status
+      onUpdateItem({
+        itemId: id,
+        statusId,
       });
-      console.log({ newStatus });
-      // setSection(newStatus);
+
+      //add item to status by statusID
+      // const status = currentStatuses?.find((s) => s.id === statusId);
+      // if (status) {
+      //   onUpdateStatus({
+      //     statusId,
+      //     item,
+      //   });
+      // }
+
+      // const newStatus = currentStatuses?.map((s) => {
+      //   if (s.id === currentStatusId) {
+      //     const newItems = s.items?.filter((t) => t.id !== _item.id);
+      //     return { ...s, todos: newItems };
+      //   } else if (s.id === statusId) {
+      //     const _item = { ...item };
+      //     _item.status.id = statusId;
+      //     //@ts-ignore
+      //     return { ...s, todos: [...s.items, item] };
+      //   }
+      //   return s;
+      // });
+      // console.log({ newStatus });
+      // // setSection(newStatus);
     }
   };
 

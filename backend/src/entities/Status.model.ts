@@ -29,10 +29,7 @@ export class Status {
   createdAt: Date;
 
   @Field()
-  @Property({
-    onUpdate: () => `CURRENT_TIMESTAMP`,
-    nullable: true,
-  })
+  @Property({ nullable: true })
   updatedAt?: Date;
 
   @Field()
