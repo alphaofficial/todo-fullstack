@@ -1,6 +1,7 @@
 # TODO fullstack
 
 This repository is a monorepo for the fullstack todo app.
+This app lives in a monorepo handled by npm workspaces
 
 ## Getting Started
 
@@ -46,17 +47,51 @@ Install the projects dependencies
 npm install
 ```
 
-Start the projects development server
+Run the docker command to start the db and app services
 
 ```
-npm start:dev
+docker-compose up -d
 ```
 
-The frontend application should now be available at http://localhost:4000
+Start the projects backend server after all docker service are running first
+
+```
+
+npm run backend:dev
+
+```
+
+Then start the projects client app
+
+```
+
+npm run client:dev
+
+```
+
+The client application should now be available at http://localhost:<PORT>
 
 ## Environment Variables
 
 These are the environment variables required to successfully deploy the application.
+
+### Backend
+
+| key         | description              |
+| ----------- | ------------------------ |
+| PG_HOST     | The postgres db host     |
+| PG_USER     | The postgres db user     |
+| PG_PASSWORD | The postgres db password |
+| PG_PORT     | The postgres db port     |
+| REDIS_HOST  | The redis server host    |
+| REDIS_PORT  | The redis server port    |
+
+### Client
+
+| key                | description                                          |
+| ------------------ | ---------------------------------------------------- |
+| PORT               | The port for development (optional: default is 3000) |
+| REACT_APP_API_HOST | The backend server uri                               |
 
 ## Built With
 
@@ -64,19 +99,20 @@ Details of the tech stack that has been used.
 
 - [NestJS](https://docs.nestjs.com/) - Server Framework
 - [CreateReactApp](https://reactjs.org/docs/create-a-new-react-app.html) - UI Framework
+- [Docker](https://docs.docker.com/get-started/)
 
 ## Architecture
 
-A basic architecture diagram or description of the chosen architecture should be detailed here.
+A basic architecture diagram or description of the chosen architecture should be detailed here. Coming soon
 
 ## Infrastructure
+
+Coming soon
 
 ## Services
 
 A list of all services used in this project.
-
-| Service Name | Owner/Admin | Service Details |
-| ------------ | ----------- | --------------- |
+Coming soon
 
 ## Changelog
 
@@ -87,3 +123,7 @@ A running changelog can be found here: [CHANGELOG.md](CHANGELOG.md)
 Below are a few common issues users experience - including an overview of their possible cause and solutions.
 
 ## Frequently Asked Questions
+
+## To do
+
+- 1 command to start all services
