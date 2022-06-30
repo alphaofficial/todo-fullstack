@@ -41,7 +41,7 @@ const components = {
         borderRadius: "8px",
         borderStyle: "dashed",
         borderWidth: "1px",
-        borderColor: "gray.500",
+        borderColor: "secondary.800",
       }),
     },
   },
