@@ -71,6 +71,8 @@ npm run client:dev
 
 The client application should now be available at http://localhost:<PORT>
 
+![app page](https://i.imgur.com/XRR8aN6.png)
+
 ## Environment Variables
 
 These are the environment variables required to successfully deploy the application.
