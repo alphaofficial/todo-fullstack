@@ -3,7 +3,7 @@ import { UseToastOptions } from "@chakra-ui/react";
 export const APP_NAME = "TODO APP";
 
 export const SUCCESS_TOAST: UseToastOptions = {
-  duration: 6000,
+  duration: 2000,
   isClosable: true,
   title: "Success!",
   status: "success",
@@ -11,7 +11,7 @@ export const SUCCESS_TOAST: UseToastOptions = {
 };
 
 export const ERROR_TOAST: UseToastOptions = {
-  duration: 6000,
+  duration: 2000,
   title: "Oops!",
   status: "error",
   isClosable: true,

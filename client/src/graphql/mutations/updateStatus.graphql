@@ -1,0 +1,13 @@
+mutation updateStatus($updateStatusInput: UpdateStatusInput!) {
+  updateStatus(updateStatusInput: $updateStatusInput) {
+    id
+    title
+    items {
+      id
+      title
+      status {
+        id
+      }
+    }
+  }
+}

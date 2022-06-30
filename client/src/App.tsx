@@ -4,17 +4,19 @@ import {
   Flex,
   Heading,
   IconButton,
+  Input,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   Stack,
   Text,
+  Tooltip,
   useToast,
 } from "@chakra-ui/react";
-import { DragEvent, useMemo, useState } from "react";
+import { DragEvent, useMemo, useRef, useState } from "react";
 import { RiAddCircleLine } from "react-icons/ri";
-import { BiDotsHorizontalRounded } from "react-icons/bi";
+import { BiDotsHorizontalRounded, BiPencil } from "react-icons/bi";
 import AppWrapper from "./layout";
 import {
   useCreateItemMutation,
@@ -22,22 +24,37 @@ import {
   useRemoveItemMutation,
   useRemoveStatusMutation,
   useStatusesQuery,
+  useUpdateItemMutation,
+  useUpdateStatusMutation,
 } from "./generated/graphql";
 import { ERROR_TOAST, SUCCESS_TOAST } from "./constants";
 import { GoTrashcan } from "react-icons/go";
+import { BsCheck } from "react-icons/bs";
+import useOnClickOutside from "./hooks/useOutsideClick";
+import { useDebouncedCallback } from "use-debounce";
 
 interface EditingMeta {
-  id: string;
-  type: "item" | "status";
+  id?: string;
+  type?: "item" | "status";
+}
+
+interface UpdateItemArgs {
+  itemId: string;
+  title?: string;
+  statusId?: string;
+}
+
+interface UpdateStatusArgs {
+  title?: string;
+  statusId: string;
 }
 
 function App() {
   const toast = useToast();
-  const [editing, setEditing] = useState(false);
-  const [editMeta, setEditMeta] = useState<EditingMeta>({
-    id: "",
-    type: "item",
-  });
+  const statusContainerRef = useRef<any>(null);
+  const statusInputRef = useRef<any>(null);
+  const itemInputRef = useRef<any>(null);
+
   const {
     data: statuses,
     loading: statusesLoading,
@@ -46,11 +63,12 @@ function App() {
     notifyOnNetworkStatusChange: true,
   });
 
+  const [editing, setEditing] = useState<EditingMeta>({});
+
   const currentStatuses = useMemo(() => {
     return statuses?.statuses;
   }, [statuses]);
 
-  console.log(currentStatuses);
   const [createStatus] = useCreateStatusMutation({
     onCompleted: () => {
       toast({ description: "Status created.", ...SUCCESS_TOAST });
@@ -99,13 +117,36 @@ function App() {
     },
   });
 
+  const [updateStatus] = useUpdateStatusMutation({
+    onCompleted: () => {
+      toast({ description: "Status updated.", ...SUCCESS_TOAST });
+    },
+    onError: () => {
+      toast({
+        description: "There was an error updating status.",
+        ...ERROR_TOAST,
+      });
+    },
+  });
+
+  const [updateItem] = useUpdateItemMutation({
+    onCompleted: () => {
+      toast({ description: "Item updated.", ...SUCCESS_TOAST });
+    },
+    onError: () => {
+      toast({
+        description: "There was an error updating item.",
+        ...ERROR_TOAST,
+      });
+    },
+  });
+
   const addNewSection = async () => {
     const newStatus = {
       title: "New Section",
-      todos: [],
     };
-    console.log({ newStatus });
     await createStatus({ variables: { createStatusInput: newStatus } });
+    await refetchStatus();
   };
 
   const addNewTodo = async (statusId: string) => {
@@ -127,12 +168,45 @@ function App() {
     await refetchStatus();
   };
 
+  const onUpdateItem = async ({ itemId, title, statusId }: UpdateItemArgs) => {
+    await updateItem({
+      variables: {
+        updateItemInput: {
+          id: itemId,
+          ...(title && { title }),
+          ...(statusId && { status: statusId }),
+        },
+      },
+    });
+    await refetchStatus();
+    setEditing({});
+  };
+
+  const onUpdateStatus = async ({ statusId, title }: UpdateStatusArgs) => {
+    await updateStatus({
+      variables: {
+        updateStatusInput: {
+          id: statusId,
+          ...(title && { title }),
+        },
+      },
+    });
+    await refetchStatus();
+    setEditing({});
+  };
+
+  const onEditValueChange = useDebouncedCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setEditing((prev) => ({ ...prev, value: e.target.value }));
+    },
+    1600
+  );
+
   const onDragStart = (
     e: DragEvent<HTMLDivElement>,
     id: string,
     statusId: string
   ) => {
-    console.log("dragstart:", id);
     e.dataTransfer.setData("id", id);
     e.dataTransfer.setData("currentStatusId", statusId);
   };
@@ -142,33 +216,20 @@ function App() {
   };
 
   const onDrop = (e: DragEvent<HTMLDivElement>, statusId: string) => {
-    console.log("dropArea", statusId);
     let id = e.dataTransfer.getData("id");
     let currentStatusId = e.dataTransfer.getData("currentStatusId");
 
-    //find todo
     const item = currentStatuses
       ?.find((s) => s.id === currentStatusId)!
       .items?.find((t) => t.id === id);
 
-    if (item) {
-      const _item = { ...item };
-      _item.status.id = statusId;
+    console.log({ item });
 
-      const newStatus = currentStatuses?.map((s) => {
-        if (s.id === currentStatusId) {
-          const newItems = s.items?.filter((t) => t.id !== _item.id);
-          return { ...s, todos: newItems };
-        } else if (s.id === statusId) {
-          const _item = { ...item };
-          _item.status.id = statusId;
-          //@ts-ignore
-          return { ...s, todos: [...s.items, item] };
-        }
-        return s;
+    if (item) {
+      onUpdateItem({
+        itemId: id,
+        statusId,
       });
-      console.log({ newStatus });
-      // setSection(newStatus);
     }
   };
 
@@ -190,7 +251,7 @@ function App() {
             <Box
               key={status.id}
               sx={{
-                "&:not(:first-child)": {
+                "&:not(:first-of-type)": {
                   ml: "30px",
                 },
                 borderRadius: "8px",
@@ -205,11 +266,74 @@ function App() {
                 direction="row"
                 justifyContent="space-between"
                 alignItems="center"
+                onDoubleClick={() =>
+                  setEditing({ id: status.id, type: "status" })
+                }
               >
-                <Box>
-                  <Heading as="h3" fontSize="2xl">
-                    {status.title}
-                  </Heading>
+                <Box ref={statusContainerRef}>
+                  {editing?.id === status.id ? (
+                    <Stack
+                      bg="gray.100"
+                      direction="row"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <Input
+                        ref={statusInputRef}
+                        fontSize="2xl"
+                        fontWeight="bold"
+                        variant="unstyled"
+                        defaultValue={status.title}
+                        onChange={onEditValueChange}
+                      />
+                      <IconButton
+                        p={0}
+                        variant="ghost"
+                        aria-label="update-title"
+                        sx={{
+                          "&:hover": {
+                            bg: "transparent",
+                          },
+                        }}
+                        onClick={() =>
+                          onUpdateStatus({
+                            statusId: status.id,
+                            title: statusContainerRef.current?.value,
+                          })
+                        }
+                      >
+                        <Box bg="secondary.400" borderRadius={4}>
+                          <BsCheck color="white" size={20} />
+                        </Box>
+                      </IconButton>
+                    </Stack>
+                  ) : (
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      alignItems="center"
+                      sx={{
+                        "& > div:last-child": {
+                          display: "none",
+                        },
+                        "&:hover": {
+                          cursor: "pointer",
+                          "& > div:last-child": {
+                            display: "block",
+                          },
+                        },
+                      }}
+                    >
+                      <Tooltip label="Double click to edit" placement="top">
+                        <Heading as="h3" fontSize="2xl">
+                          {status.title}
+                        </Heading>
+                      </Tooltip>
+                      <Box>
+                        <BiPencil />
+                      </Box>
+                    </Stack>
+                  )}
                 </Box>
                 <Box>
                   <Stack direction="row" spacing={2} alignItems="center">
@@ -253,7 +377,7 @@ function App() {
                       border: "1px solid",
                       borderColor: "gray.400",
                       borderRadius: "8px",
-                      "&:not(:first-child)": {
+                      "&:not(:first-of-type)": {
                         mt: "10px",
                       },
                       "&:hover": {
@@ -262,26 +386,77 @@ function App() {
                     }}
                     paddingY={2}
                     paddingX={4}
+                    onDoubleClick={(e) => {
+                      e.preventDefault();
+                      setEditing({ id: item.id, type: "item" });
+                    }}
                   >
-                    <Box>
-                      <Text noOfLines={1}>{item?.title}</Text>
-                    </Box>
-                    <Box>
-                      <IconButton
-                        aria-label="delete-item"
-                        variant="ghost"
-                        onClick={() => onDeleteItem(item.id)}
+                    {editing?.id === item.id ? (
+                      <Stack
+                        bg="gray.100"
+                        direction="row"
+                        alignItems="center"
+                        spacing={2}
+                        w="100%"
                       >
-                        <GoTrashcan />
-                      </IconButton>
-                    </Box>
+                        <Input
+                          ref={itemInputRef}
+                          variant="unstyled"
+                          defaultValue={item.title}
+                          onChange={onEditValueChange}
+                        />
+                        <IconButton
+                          p={0}
+                          variant="ghost"
+                          aria-label="update-title"
+                          sx={{
+                            "&:hover": {
+                              bg: "transparent",
+                            },
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            onUpdateItem({
+                              itemId: item.id,
+                              title: itemInputRef.current?.value,
+                            });
+                          }}
+                        >
+                          <Box bg="secondary.400" borderRadius={4}>
+                            <BsCheck color="white" size={20} />
+                          </Box>
+                        </IconButton>
+                      </Stack>
+                    ) : (
+                      <>
+                        <Box>
+                          <Text noOfLines={1}>{item?.title}</Text>
+                        </Box>
+                        <Box>
+                          <IconButton
+                            aria-label="delete-item"
+                            variant="ghost"
+                            onClick={() => onDeleteItem(item.id)}
+                          >
+                            <GoTrashcan />
+                          </IconButton>
+                        </Box>
+                      </>
+                    )}
                   </Flex>
                 ))}
               </Box>
               <Box mt="30px">
                 <Button
                   variant="dashed"
+                  bg="secondary.500"
+                  color="white"
                   w="100%"
+                  sx={{
+                    "&:hover": {
+                      bg: "secondary.400",
+                    },
+                  }}
                   onClick={() => addNewTodo(status?.id as string)}
                 >
                   <Stack spacing={2} direction="row" alignItems="center">
