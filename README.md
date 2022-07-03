@@ -128,4 +128,7 @@ Below are a few common issues users experience - including an overview of their 
 
 ## To do
 
-- 1 command to start all services
+- One command to start all services
+- Cascade delete on status
+- Authentication and assignment of tasks to users
+- Workspaces
