@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/alphaofficial/todo-fullstack/compare/v1.0.1...v1.0.2) (2022-07-22)
+
+
+### Bug Fixes
+
+* status delete with items error ([14d9223](https://github.com/alphaofficial/todo-fullstack/commit/14d9223ebd7bb443b2bd509a49a4e89ebfa69369))
+
 ## [1.0.1](https://github.com/alphaofficial/todo-fullstack/compare/v1.0.0...v1.0.1) (2022-06-30)
 
 
