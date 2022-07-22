@@ -96,9 +96,9 @@ function App() {
     onCompleted: () => {
       toast({ description: "Status deleted.", ...SUCCESS_TOAST });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
-        description: "There was an error deleting status.",
+        description: error.message,
         ...ERROR_TOAST,
       });
     },
@@ -158,7 +158,12 @@ function App() {
   };
 
   const onDeleteStatus = async (statusId: string) => {
-    await removeStatus({ variables: { id: statusId } });
+    const { errors } = await removeStatus({
+      variables: { id: statusId },
+    });
+    if (errors) {
+      return;
+    }
     await refetchStatus();
   };
 

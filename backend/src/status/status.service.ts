@@ -97,9 +97,15 @@ export class StatusService {
 
   async remove(id: string): Promise<{ data: Status; error: Error }> {
     try {
-      const status = await this.statusRepository.findOne(id);
+      const status = await this.statusRepository.findOne(id, {
+        populate: true,
+      });
       if (!status) {
         throw new Error('Status does not exist');
+      }
+      const items = status.items.getItems();
+      if (items.length > 0) {
+        throw new Error('Status has items');
       }
       await this.statusRepository.remove(status).flush();
       return {
