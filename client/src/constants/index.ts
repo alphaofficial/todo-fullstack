@@ -1,6 +1,6 @@
 import { UseToastOptions } from "@chakra-ui/react";
 
-export const APP_NAME = "TODO APP";
+export const APP_NAME = "TASK MANAGER";
 
 export const SUCCESS_TOAST: UseToastOptions = {
   duration: 2000,

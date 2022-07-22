@@ -1,5 +1,6 @@
 import { Box, BoxProps, Flex, Heading } from "@chakra-ui/react";
 import { FC } from "react";
+import { APP_NAME } from "../constants";
 
 const AppWrapper: FC<BoxProps> = ({ children }) => {
   return (
@@ -15,7 +16,7 @@ const AppWrapper: FC<BoxProps> = ({ children }) => {
       >
         <Box>
           <Heading fontSize="lg" color="white">
-            TODO APP
+            {APP_NAME}
           </Heading>
         </Box>
       </Flex>
